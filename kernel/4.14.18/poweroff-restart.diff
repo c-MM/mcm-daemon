@@ -1,0 +1,33 @@
+diff -u -r linux-4.14.18.orig/drivers/power/reset/Kconfig linux-4.14.18/drivers/power/reset/Kconfig
+--- linux-4.14.18.orig/drivers/power/reset/Kconfig	2018-02-07 20:12:26.000000000 +0100
++++ linux-4.14.18/drivers/power/reset/Kconfig	2018-02-11 21:17:35.119989336 +0100
+@@ -139,6 +139,15 @@
+ 
+ 	  Say Y if you have a QNAP NAS.
+ 
++config POWER_RESET_WDEX2U
++	bool "WDMC EX2 ultra power-off driver"
++	depends on OF_GPIO && PLAT_ORION
++	help
++	  This driver supports turning off WD MyCloud EX2 ultra NAS devices by
++          sending commands to the microcontroller which controls the main power.
++
++	  Say Y if you have a WD MyCloud EX2 ultra
++
+ config POWER_RESET_RESTART
+ 	bool "Restart power-off driver"
+ 	help
+Only in linux-4.14.18/drivers/power/reset: Kconfig.orig
+diff -u -r linux-4.14.18.orig/drivers/power/reset/Makefile linux-4.14.18/drivers/power/reset/Makefile
+--- linux-4.14.18.orig/drivers/power/reset/Makefile	2018-02-07 20:12:26.000000000 +0100
++++ linux-4.14.18/drivers/power/reset/Makefile	2018-02-11 21:17:35.119989336 +0100
+@@ -15,6 +15,7 @@
+ obj-$(CONFIG_POWER_RESET_PIIX4_POWEROFF) += piix4-poweroff.o
+ obj-$(CONFIG_POWER_RESET_LTC2952) += ltc2952-poweroff.o
+ obj-$(CONFIG_POWER_RESET_QNAP) += qnap-poweroff.o
++obj-$(CONFIG_POWER_RESET_WDEX2U) += wt-poweroff.o
+ obj-$(CONFIG_POWER_RESET_RESTART) += restart-poweroff.o
+ obj-$(CONFIG_POWER_RESET_ST) += st-poweroff.o
+ obj-$(CONFIG_POWER_RESET_VERSATILE) += arm-versatile-reboot.o
+Only in linux-4.14.18/drivers/power/reset: Makefile.orig
+Only in linux-4.14.18/drivers/power/reset: wt-poweroff.c
