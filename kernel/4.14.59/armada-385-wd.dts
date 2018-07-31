@@ -37,6 +37,9 @@
 			  MBUS_ID(0x0c, 0x04) 0 0xf1200000 0x100000>;
 
 		internal-regs {
+			timer@c200 {
+				status = "disabled";
+			};
 			i2c0: i2c@11000 {
 				status = "okay";
 				clock-frequency = <100000>;
@@ -241,9 +244,5 @@
 		marvell,pins = "mpp43", "mpp52", "mpp53", "mpp54";
 		marvell,function = "gpio";
 	};
-};
-
-&global_timer {
-	status = "disabled";
 };
 
