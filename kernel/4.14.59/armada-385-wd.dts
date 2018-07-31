@@ -1,0 +1,249 @@
+/*
+ * Device Tree file for Marvell Armada 385 evaluation board
+ * (DB-88F6820)
+ *
+ *  Copyright (C) 2013 Marvell
+ *
+ * Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+ *
+ * This file is licensed under the terms of the GNU General Public
+ * License version 2.  This program is licensed "as is" without any
+ * warranty of any kind, whether express or implied.
+ */
+
+/dts-v1/;
+#include "armada-385.dtsi"
+#include <dt-bindings/gpio/gpio.h>
+
+/ {
+	model = "Western Digital MyCloud EX2 Ultra";
+	compatible = "marvell,a385-db", "marvell,armada388",
+		 "marvell,armada385", "marvell,armada38x", "marvell,armada380";
+
+	chosen {
+		bootargs = "console=ttyS0,115200 root=LABEL=rootfs earlyprintk";
+	};
+
+	memory {
+		device_type = "memory";
+		reg = <0x00000000 0x40000000>; /* 1024 MB */
+	};
+
+	soc {
+		ranges = <MBUS_ID(0xf0, 0x01) 0 0xf1000000 0x100000
+			  MBUS_ID(0x01, 0x1d) 0 0xfff00000 0x100000
+			  MBUS_ID(0x09, 0x19) 0 0xf1100000 0x10000
+			  MBUS_ID(0x09, 0x15) 0 0xf1110000 0x10000
+			  MBUS_ID(0x0c, 0x04) 0 0xf1200000 0x100000>;
+
+		internal-regs {
+			i2c0: i2c@11000 {
+				status = "okay";
+				clock-frequency = <100000>;
+			};
+
+			i2c1: i2c@11100 {
+				status = "okay";
+				clock-frequency = <100000>;
+			};
+
+			serial@12000 {
+				status = "okay";
+			};
+
+			/* ttyS1 is connected to w Welltrend 6703F-OG240WT Micocontroller
+			 * which controls power fan and other things */
+			serial@12100 {
+				status = "okay";
+			};
+
+			ethernet@34000 {
+				status = "okay";
+				phy = <&phy0>;
+				phy-mode = "sgmii";
+				buffer-manager = <&bm>;
+				bm,pool-long = <2>;
+				bm,pool-short = <3>;
+			};
+						
+			mdio@72004 {
+				phy0: ethernet-phy@0 {
+					reg = <0>;
+				};
+
+			};
+			
+			sata@a8000 {
+				status = "okay";
+			};
+			
+			sdhci@d8000 {
+				broken-cd;
+				wp-inverted;
+				bus-width = <8>;
+				status = "okay";
+				no-1-8-v;
+			};
+
+			poweroff@12100 {
+				compatible = "wdmcex2u,power-off";
+				reg = <0x12100 0x100>;
+				clocks = <&coreclk 0>;
+				status = "okay";
+			};
+
+			usb@58000 {
+				status = "ok";
+			};
+	
+			usb3@f0000 {
+				status = "okay";
+			};
+			
+			usb3@f8000 {
+				status = "okay";
+			};
+
+			bm@c8000 {
+				status = "okay";
+			};
+
+			/*
+			 * 1GB Flash via NFC NAND controller
+			 * should be disabled when the board boots
+			 * from SPI flash, since NFC shares the same
+			 * pins with SPI0 and requires SLM-1358 jumper.
+			 * However the u-boot DTB parser will
+			 * handle this situation and disable/remove
+			 * unnessesary devices according to board
+			 * boot-up configuration.
+			 */
+			nfc: flash@d0000 {
+				status = "okay";
+				#address-cells = <1>;
+				#size-cells = <1>;
+				num-cs = <1>;
+				marvell,nand-keep-config;
+				marvell,nand-enable-arbiter;
+				nand-on-flash-bbt;
+				nand-ecc-strength = <4>;
+				nand-ecc-step-size = <512>;
+				
+				partition@00000000 {
+					label = "U-Boot";
+					reg = <0x00000000 0x00500000>;
+					read-only;
+				};
+
+				partition@00500000 {
+					label = "uImage";
+					reg = <0x00500000 0x00500000>;
+				};
+
+				partition@00a00000 {
+					label = "uRamdisk";
+					reg = <0x00a00000 0x00500000>; //BLUE_ADD for Alpha 256MBNAND
+				};
+				
+				partition@00f00000 {
+					label = "image.cfs";
+					reg = <0x00f00000 0x0b900000>;
+				};
+
+				partition@c800000 {
+					label = "rescue fw";
+					reg = <0x0c800000 0x00f00000>;
+				};
+				
+				partition@d70000 {
+					label = "config";
+					reg = <0x0d700000 0x01400000>; 
+				};
+				
+				partition@eb00000 {
+					label = "reserve1";
+					reg = <0x0eb00000 0x00a00000>;
+				};
+				
+				partition@f500000 {
+					label = "reserve2";
+					reg = <0x0f500000 0x00a00000>;
+				};
+			};
+
+			crypto@9D000 {
+				status = "okay";
+			};
+		};
+
+		bm-bppi {
+			status = "okay";
+		};
+
+		pcie-controller {
+			status = "okay";
+			/*
+			 * The two PCIe units are accessible through
+			 * standard PCIe slots on the board.
+			 */
+			pcie@1,0 {
+				/* Port 0, Lane 0 */
+				status = "okay";
+			};
+			pcie@2,0 {
+				/* Port 1, Lane 0 */
+				status = "okay";
+			};
+		};
+
+								
+	};
+
+	gpio-leds {
+		compatible = "gpio-leds";
+		pinctrl-0 = <&sata_leds>;
+		pinctrl-names = "default";
+
+		red-sata1-led {
+			label = "wdmcex2u:red:hdd1";
+			gpios = <&gpio1 11 GPIO_ACTIVE_HIGH>;
+		};
+		red-sata2-led {
+			label = "wdmcex2u:red:hdd2";
+			gpios = <&gpio1 20 GPIO_ACTIVE_HIGH>;
+		};
+		blue-sata1-led {
+			label = "wdmcex2u:blue:hdd1";
+			gpios = <&gpio1 21 GPIO_ACTIVE_HIGH>;
+		};
+		blue-sata2-led {
+			label = "wdmcex2u:blue:hdd2";
+			gpios = <&gpio1 22 GPIO_ACTIVE_HIGH>;
+		};
+	};
+
+};
+
+&spi0 {
+	status = "okay";
+
+	spi-flash@0 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "w25q32";
+		reg = <0>; /* Chip select 0 */
+		spi-max-frequency = <108000000>;
+	};
+};
+
+&pinctrl {
+	sata_leds: sata-leds {
+		marvell,pins = "mpp43", "mpp52", "mpp53", "mpp54";
+		marvell,function = "gpio";
+	};
+};
+
+&global_timer {
+	status = "disabled";
+};
+
