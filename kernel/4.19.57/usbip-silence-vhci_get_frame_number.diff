@@ -1,0 +1,12 @@
+diff -ruN linux-4.19.57.orig/drivers/usb/usbip/vhci_hcd.c linux-4.19.57/drivers/usb/usbip/vhci_hcd.c
+--- linux-4.19.57.orig/drivers/usb/usbip/vhci_hcd.c	2019-07-03 13:14:50.000000000 +0200
++++ linux-4.19.57/drivers/usb/usbip/vhci_hcd.c	2019-07-09 14:30:21.691187952 +0200
+@@ -1228,7 +1228,7 @@
+ 
+ static int vhci_get_frame_number(struct usb_hcd *hcd)
+ {
+-	dev_err_ratelimited(&hcd->self.root_hub->dev, "Not yet implemented\n");
++	//dev_err_ratelimited(&hcd->self.root_hub->dev, "Not yet implemented\n");
+ 	return 0;
+ }
+ 
